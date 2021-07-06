@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+//#include <ncurses.h>
 #include <curses.h>
+//#include <time.h>
 
 int snake_length = 1;
 int orig_timeUntillMove = 2000;
@@ -14,6 +16,23 @@ _Bool includesPos(int snake[931][3], int x, int y) {
                 }
         }
         return 0;
+}
+
+void makeRandomArray(int arr[931][2], int snake[931][3], int width, int height, int arr_len) {
+        for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                        if (includesPos(snake, i, j)) {
+                                continue;
+                        } else {
+                                arr[arr_len][0] = i + 1;
+                                arr[arr_len][1] = j + 1;
+                                mvprintw(40, 40, "\n\n%d %d\n\n", arr[arr_len][0], arr[arr_len][1]);
+                                arr_len++;
+                                mvprintw(45, 45, "\n\n%d\n\n", arr_len);
+                        }
+                }
+        }
+        mvprintw(50, 50, "\n\n%d\n\n", arr_len);
 }
 
 _Bool didHeadHitBody(int snake[931][3]) {
@@ -118,6 +137,7 @@ int main() {
                 }
                 for (int i = 0; i < width; i++) {
                         for (int j = 0; j < height; j++) {
+                                //printf("%d", includesPos(snake_poses, i, j));
                                 if (includesPos(snake_poses, i, j)) {
                                         mvprintw(i, j, "S");
                                 } else if (j == appleX && i == appleY) {
@@ -135,11 +155,20 @@ int main() {
                         timeUntillMove = orig_timeUntillMove;
                 }
                 if (snake_poses[0][0] == appleX && snake_poses[0][1] == appleY) {
+                        //(rand() % ((height - 1) - 1 + 1)) + 1
                         score++;
                         int randArr[931][2] = {};
                         int randArrLen = 0;
-                        appleX = (rand() % ((height - 1) - 1 + 1)) + 1;
-                        appleY = (rand() % ((width - 1) - 1 + 1)) + 1;
+                        makeRandomArray(randArr, snake_poses, width, height, randArrLen);
+                        int pickedPos = (rand() % (randArrLen - 0 + 1)) + 0;
+
+                        mvprintw(50, 50, "\n\n%d\n\n", randArrLen);
+
+                        appleX = randArr[pickedPos][0];
+                        appleY = randArr[pickedPos][1];
+
+                        //appleX = (rand() % ((height - 1) - 1 + 1)) + 1;
+                        //appleY = (rand() % ((width - 1) - 1 + 1)) + 1;
                         addToBody(snake_poses);
                 } else if (snake_poses[0][0] == 0 || snake_poses[0][0] == height || snake_poses[0][1] == 0 || snake_poses[0][1] == width || didHeadHitBody(snake_poses)) {
                         break;
